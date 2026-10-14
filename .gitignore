@@ -1,0 +1,12 @@
+# Dependencias
+node_modules/
+*-lock.json
+# Entorno
+.vscode/
+.env
+# Registro de Actividad
+logs/
+*.log*
+# Compilacion
+temp/
+dist/
