@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 export class Database {
-    private instance: Database | null = null;
+    private static instance: Database | null = null;
     private URI:string = process.env.MONGODB_URI ?? 'mongodb://localhost:27017/digihub';
     constructor(){
         mongoose.connect(this.URI)
@@ -14,7 +14,9 @@ export class Database {
             })
     }
     getInstance(){
-        return !this.instance ? this.instance = new Database() : this.instance;
+        return !Database.instance ?
+        Database.instance = new Database() :
+        Database.instance;
     }
     disconnect(){
         mongoose.disconnect();
