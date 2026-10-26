@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { error } from "../utils/index.js";
 export class Database {
     private static instance: Database | null = null;
     private URI:string = process.env.MONGODB_URI ?? 'mongodb://localhost:27017/digihub';
@@ -8,10 +9,7 @@ export class Database {
                 const dbName = conn.connection.db?.databaseName;
                 console.log(`database connected:`, dbName);
             })
-            .catch(err => { 
-                console.error(`conection error:`, err.message); 
-                process.exit(1);
-            })
+            .catch(error.close)
     }
     getInstance(){
         return !Database.instance ?
