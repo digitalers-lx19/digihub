@@ -4,7 +4,7 @@ import type { Socket } from "socket.io";
 import { WebSocket } from "./config/index.js";
 import * as Handlers from "./sockets/index.js";
 import { mainRouter } from "./routes/main.router.js";
-import { getGames } from "./services/games.service.js";
+import { mainController } from "./controllers/main.controller.js";
 export function App () {   
     const app = express();
     const server = createServer(app)
@@ -13,8 +13,8 @@ export function App () {
     ws.connect((socket: Socket) => {
         socketHandlers.map(handler => handler((WebSocket as any).ws, socket))
     }) 
-    app.get('/', (_req, res) => res.json({ appName: 'DigiHub', appList: getGames() }));
-    app.use('/api/', mainRouter);
+app.get('/', mainController.getAppsPage);
+app.use('/api/', mainRouter);
     app.use(express.static('./public/'));
     server.listen(process.env.PORT ?? 3000, () => {
         const { HOST, PORT } = process.env
