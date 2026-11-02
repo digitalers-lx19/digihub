@@ -1,5 +1,6 @@
 import { DrawContext, shapes, resize } from './Global.js';
-export const View = () => {
+export class View {
+    render() {
     const create = ({tag, ...props}) => Object.assign(document.createElement(tag), props);
     // Contenedor Principal
     const container = create({
@@ -61,4 +62,5 @@ export const View = () => {
     shadowCanvas.style.position = "absolute";
     shadowCanvas.style.top = '2.2rem';
     shadowCanvas.style.zIndex = "-1";
+    }
 }
