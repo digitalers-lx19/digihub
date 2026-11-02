@@ -1,15 +1,14 @@
 import { DrawContext, shapes, resize } from './Global.js';
 export class View {
     render() {
+    const root = document.getElementById('root');
     const create = ({tag, ...props}) => Object.assign(document.createElement(tag), props);
-    // Contenedor Principal
     const container = create({
         tag: 'section',
         id: 'container',
         className: 'p-2 d-flex justify-content-between',
     })
     root.append(container);
-    // Opciones de Dibujo
     const shape = create({
         tag: 'select',
         id: 'shape',
@@ -56,11 +55,20 @@ export class View {
         height: canvas.height,
         width: canvas.width,
     })
-    container.append(shape, strokeStyle, strokeWidth, fillStyle);
-    root.append(canvas, shadowCanvas);
+    const shapeLabel = create({tag: 'label'});
+    shapeLabel.append(shape);
+    const strokeLabel = create({tag: 'label'});
+    strokeLabel.append(strokeStyle);
+    const widthLabel = create({tag: 'label'});
+    widthLabel.append(strokeWidth);
+    const fillLabel = create({tag: 'label'});
+    fillLabel.append(fillStyle);
+    container.append(shapeLabel, strokeLabel, widthLabel, fillLabel);
+    container.append(canvas, shadowCanvas);
     
     shadowCanvas.style.position = "absolute";
-    shadowCanvas.style.top = '2.2rem';
-    shadowCanvas.style.zIndex = "-1";
+    shadowCanvas.style.top = '0';
+    shadowCanvas.style.left = '0';
+    shadowCanvas.style.zIndex = "2";
     }
 }
