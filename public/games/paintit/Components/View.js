@@ -1,4 +1,5 @@
 import { DrawContext, shapes, resize } from './Global.js';
+import { Canvas } from './Canvas/Canvas.js';
 export class View {
     render() {
     const root = document.getElementById('root');
@@ -78,6 +79,21 @@ export class View {
     transparentLabel.append(fillTransparent);
     container.append(shapeLabel, strokeLabel, widthLabel, fillLabel, transparentLabel);
     container.append(canvas, shadowCanvas);
+    
+    canvas.instance = new Canvas(canvas)
+        .configure({
+            shape: DrawContext.shape,
+            lineWidth: DrawContext.lineWidth,
+            strokeStyle: DrawContext.strokeStyle,
+            fillStyle: DrawContext.fillStyle,
+        });
+    shadowCanvas.instance = new Canvas(shadowCanvas)
+        .configure({
+            shape: DrawContext.shape,
+            lineWidth: DrawContext.lineWidth,
+            strokeStyle: DrawContext.strokeStyle,
+            fillStyle: DrawContext.fillStyle,
+        });
     
     shadowCanvas.style.position = "absolute";
     shadowCanvas.style.top = '0';
