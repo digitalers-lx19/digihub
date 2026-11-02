@@ -1,5 +1,6 @@
 import { DrawContext, shapes, resize } from "./Global.js";
-export const Handler = () => {
+export class Handler {
+    bind() {
     const ctx = canvas.getContext('2d');
     const btx = shadow.getContext('2d');
     window.addEventListener('resize', () => {
@@ -37,4 +38,5 @@ export const Handler = () => {
             }
         })
     )
+    }
 }
