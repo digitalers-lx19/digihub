@@ -38,7 +38,18 @@ export class View {
         id: 'fillStyle',
         type: 'color',
         title: "color de relleno",
-        oninput: ({target: { value}}) => DrawContext.fillStyle = value
+        oninput: ({target: { value}}) => { if (!DrawContext.fillTransparent) DrawContext.fillStyle = value; }
+    });
+    const fillTransparent = create({
+        tag: 'input',
+        id: 'fillTransparent',
+        type: 'checkbox',
+        checked: DrawContext.fillTransparent,
+        title: "relleno transparente",
+        oninput: ({target: {checked}}) => {
+            DrawContext.fillTransparent = checked;
+            DrawContext.fillStyle = checked ? 'transparent' : DrawContext.fillStyle;
+        }
     });
     // Lienzos
     const canvas = create({
@@ -63,7 +74,9 @@ export class View {
     widthLabel.append(strokeWidth);
     const fillLabel = create({tag: 'label'});
     fillLabel.append(fillStyle);
-    container.append(shapeLabel, strokeLabel, widthLabel, fillLabel);
+    const transparentLabel = create({tag: 'label'});
+    transparentLabel.append(fillTransparent);
+    container.append(shapeLabel, strokeLabel, widthLabel, fillLabel, transparentLabel);
     container.append(canvas, shadowCanvas);
     
     shadowCanvas.style.position = "absolute";

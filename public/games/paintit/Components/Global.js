@@ -4,6 +4,7 @@ export const DrawContext = {
     x2: 0, y2: 0,
     shape: 'freeHand',
     fillStyle: "transparent",
+    fillTransparent: true,
     strokeStyle: "#000",
     lineWidth: 1,    
 }
