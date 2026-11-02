@@ -1,5 +1,6 @@
-import { DrawContext, shapes, resize } from './Global.js';
+import { DrawContext, resize } from './Global.js';
 import { Canvas } from './Canvas/Canvas.js';
+import { Shape } from './Shape.js';
 export class View {
     render() {
     const root = document.getElementById('root');
@@ -13,7 +14,7 @@ export class View {
     const shape = create({
         tag: 'select',
         id: 'shape',
-        innerHTML: Object.keys(shapes).map(opt => 
+        innerHTML: Shape.names.map(opt => 
             `<option value="${opt}">${opt}</option>`
         ).join(),
         oninput: ({target: {value}}) => DrawContext.shape = value
