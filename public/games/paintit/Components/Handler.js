@@ -1,5 +1,5 @@
 import { resize } from "./Global.js";
-import { CanvasEventHandler } from "./Canvas/Events.js";
+import { Canvas, CanvasEventHandler } from "./Canvas/index.js";
 export class Handler {
     bind() {
     const canvas = document.getElementById('canvas');
