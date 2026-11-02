@@ -1,12 +1,14 @@
 import { DrawContext, shapes, resize } from "./Global.js";
 export class Handler {
     bind() {
+    const canvas = document.getElementById('canvas');
+    const shadow = document.getElementById('shadow');
     const ctx = canvas.getContext('2d');
     const btx = shadow.getContext('2d');
     window.addEventListener('resize', () => {
         ctx.save();
         canvas.width = resize().width
-        canvas.heigh = resize().height
+        canvas.height = resize().height
         ctx.restore();
     })
     const drawEvents = ['mousedown', 'mousemove', 'mouseup']
