@@ -1,2 +1,1 @@
-export * from "./tictactoe.js";
-export * from "./cards.js";
+export * from "./tictactoe.js"
