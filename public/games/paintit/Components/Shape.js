@@ -1,12 +1,13 @@
-import { line, rect, circle, ellipse, polygon } from './Shapes/index.js';
+import { freeHand, line, rect, circle, ellipse, polygon, star } from './Shapes/index.js';
 const DEFAULT_SHAPE = 'freeHand';
 const DRAWERS = new Map([
-    ['freeHand', { draw: line, fill: false }],
+    ['freeHand', { draw: freeHand, fill: false }],
     ['line', { draw: line, fill: false }],
     ['rect', { draw: rect, fill: true }],
     ['circle', { draw: circle, fill: true }],
     ['ellipse', { draw: ellipse, fill: true }],
     ['polygon', { draw: polygon, fill: true }],
+    ['star', { draw: star, fill: true }],
 ]);
 export class Shape {
     constructor(canvas) { this.canvas = canvas; }
