@@ -1,25 +1,28 @@
-import { freeHand, line, rect, circle, ellipse, polygon, star } from './Shapes/index.js';
+import * as shapeDrawers from './Shapes/index.js';
 const DEFAULT_SHAPE = 'freeHand';
-const DRAWERS = new Map([
-    ['freeHand', { draw: freeHand, fill: false }],
-    ['line', { draw: line, fill: false }],
-    ['rect', { draw: rect, fill: true }],
-    ['circle', { draw: circle, fill: true }],
-    ['ellipse', { draw: ellipse, fill: true }],
-    ['polygon', { draw: polygon, fill: true }],
-    ['star', { draw: star, fill: true }],
-]);
+const normalizeName = (name) => name.charAt(0).toLowerCase() + name.slice(1);
+const drawers = Object.create(null);
+for (const [exportName, drawShape] of Object.entries(shapeDrawers))
+    if (typeof drawShape === 'function')
+        drawers[normalizeName(exportName)] = drawShape;
+Object.freeze(drawers);
 export class Shape {
-    constructor(canvas) { this.canvas = canvas; }
-    static get names() {
-        return [...DRAWERS.keys()].sort((a, b) => a === DEFAULT_SHAPE ? -1 : b === DEFAULT_SHAPE ? 1 : a.localeCompare(b));
+    constructor(canvas) {
+        this.canvas = canvas;
     }
-    has(name) { return DRAWERS.has(name); }
-    fills(name) { return DRAWERS.get(name)?.fill ?? false; }
+    static get names() {
+        return Object.keys(drawers).sort((a, b) => {
+            if (a === DEFAULT_SHAPE) return -1;
+            if (b === DEFAULT_SHAPE) return 1;
+            return a.localeCompare(b);
+        });
+    }
+    has(name) {
+        return Object.hasOwn(drawers, name);
+    }
     draw(name) {
-        const drawer = DRAWERS.get(name);
-        if (!drawer) return false;
-        drawer.draw(this.canvas);
+        if (!this.has(name)) return false;
+        drawers[name](this.canvas);
         return true;
     }
 }
