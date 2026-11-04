@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/",
     "dev": "tsx watch src/",
-    "build": "rm -rf dist && mkdir dist && tsc",
+    "build": "tsc",
     "test": "jest */*.test.js"
   },
   "repository": {
