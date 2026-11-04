@@ -1,5 +1,5 @@
-const HORIZONTAL_MARGIN = 24;
-const VERTICAL_MARGIN = 12;
+const HORIZONTAL_MARGIN = 0;
+const VERTICAL_MARGIN = 0;
 export const getCanvasSize = () => {
     const stage = document.getElementById('stage');
     const stageTop = stage?.getBoundingClientRect().top ?? 0;
