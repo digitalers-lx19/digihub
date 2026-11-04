@@ -1,6 +1,6 @@
 import { View } from './View.js';
-import { CanvasPaint } from './CanvasPaint.js';
-import { CanvasHandler } from './CanvasHandler.js';
+import { CanvasPaint } from './Canvas/CanvasPaint.js';
+import { CanvasHandler } from './Canvas/CanvasHandler.js';
 import { bindControls } from './Controls.js';
 import { fitToWindow } from './Layout.js';
 const connectEvents = (canvas, painter) => {
