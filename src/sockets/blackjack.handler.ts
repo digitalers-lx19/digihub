@@ -1,10 +1,13 @@
 import type { Server, Socket } from "socket.io";
 import { BlackjackGame } from "../games/index.js";
+
 const rooms = new Map<string, BlackjackGame>();
 const roomOf = (payload: { room?: string }) => payload?.room?.trim() ?? "";
+
 const sync = (ws: Server, room: string, game: BlackjackGame) => {
     ws.to(room).emit("blackjack:update", game.toJSON(undefined, room));
 };
+
 export const blackjackHandler = (ws: Server, socket: Socket) => {
     socket.on("blackjack:join", (payload: { room?: string; name?: string } = {}) => {
         const room = roomOf(payload);
@@ -21,6 +24,7 @@ export const blackjackHandler = (ws: Server, socket: Socket) => {
         socket.emit("blackjack:joined", { room, id: socket.id });
         sync(ws, room, game);
     });
+
     socket.on("blackjack:start", (payload: { room?: string } = {}) => {
         const room = roomOf(payload);
         const game = rooms.get(room);
@@ -32,6 +36,7 @@ export const blackjackHandler = (ws: Server, socket: Socket) => {
             socket.emit("blackjack:error", { message: (error as Error).message });
         }
     });
+
     socket.on("blackjack:hit", (payload: { room?: string } = {}) => {
         const room = roomOf(payload);
         const game = rooms.get(room);
@@ -41,8 +46,10 @@ export const blackjackHandler = (ws: Server, socket: Socket) => {
             sync(ws, room, game);
         } catch (error) {
             socket.emit("blackjack:error", { message: (error as Error).message });
+            sync(ws, room, game);
         }
     });
+
     socket.on("blackjack:stand", (payload: { room?: string } = {}) => {
         const room = roomOf(payload);
         const game = rooms.get(room);
@@ -52,8 +59,16 @@ export const blackjackHandler = (ws: Server, socket: Socket) => {
             sync(ws, room, game);
         } catch (error) {
             socket.emit("blackjack:error", { message: (error as Error).message });
+            sync(ws, room, game);
         }
     });
+
+    socket.on("blackjack:state", (payload: { room?: string } = {}) => {
+        const room = roomOf(payload);
+        const game = rooms.get(room);
+        if (game) socket.emit("blackjack:update", game.toJSON(socket.id, room));
+    });
+
     socket.on("disconnecting", () => {
         for (const room of socket.rooms) {
             const game = rooms.get(room);
