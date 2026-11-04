@@ -1,50 +1,7 @@
-.border {
-    border: 2px solid #333;
-}
-
-body {
-    margin: 12px;
-    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-}
-
-#container {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
-}
-
-#container label {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-}
-
-#stage {
-    position: relative;
-    display: inline-block;
-    line-height: 0;
-}
-
-#canvas,
-#shadow {
-    display: block;
-    border: 0;
-    background: transparent;
-}
-
-#canvas {
-    position: relative;
-    z-index: 1;
-    background: #fff;
-    cursor: crosshair;
-}
-
-#shadow {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 2;
-    pointer-events: none;
-}
+body { margin: 12px; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+#container { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+#container label { display: flex; align-items: center; gap: 0.35rem; }
+#stage { position: relative; display: inline-block; line-height: 0; }
+#canvas, #shadow { display: block; border: 1px solid #000; background: transparent; }
+#canvas { position: relative; z-index: 1; background: #fff; cursor: crosshair; }
+#shadow { position: absolute; top: 0; left: 0; z-index: 2; pointer-events: none; }
