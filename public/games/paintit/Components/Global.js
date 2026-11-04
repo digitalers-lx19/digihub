@@ -4,7 +4,6 @@ export const DrawContext = {
     x2: 0, y2: 0,
     shape: 'freeHand',
     fillStyle: "transparent",
-    fillTransparent: true,
     strokeStyle: "#000",
     lineWidth: 1,    
 }
@@ -32,7 +31,7 @@ export const shapes =  {
         ctx.beginPath()
         ctx.fillStyle = DrawContext.fillStyle;
         ctx.strokeStyle = DrawContext.strokeStyle;
-        ctx.lineWidth = DrawContext.lineWidth;
+        ctx.lineWidth = DrawContext.strokeWidth;
         ctx.rect(x1, y1, x2 - x1, y2 - y1);
         ctx.stroke();
         ctx.fill();
@@ -42,7 +41,7 @@ export const shapes =  {
         const {x1,y1,x2,y2} = DrawContext;
         ctx.fillStyle = DrawContext.fillStyle;
         ctx.strokeStyle = DrawContext.strokeStyle;
-        ctx.lineWidth = DrawContext.lineWidth;
+        ctx.strokeWidth = DrawContext.strokeWidth;
         ctx.beginPath();
         const cath = (a,b) => Math.pow(b - a, 2);
         const rad = Math.sqrt(cath(x1,x2) + cath(y1,y2));
@@ -55,7 +54,7 @@ export const shapes =  {
         const {x1,y1,x2,y2} = DrawContext;
         ctx.fillStyle = DrawContext.fillStyle;
         ctx.strokeStyle = DrawContext.strokeStyle;
-        ctx.lineWidth = DrawContext.lineWidth;
+        ctx.strokeWidth = DrawContext.strokeWidth;
         ctx.beginPath();
         const radiusX = Math.abs(x2 - x1) / 2;
         const radiusY = Math.abs(y2 - y1) / 2;

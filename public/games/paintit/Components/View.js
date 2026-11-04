@@ -1,20 +1,18 @@
-import { DrawContext, resize } from './Global.js';
-import { Canvas } from './Canvas/Canvas.js';
-import { Shape } from './Shape.js';
-export class View {
-    render() {
-    const root = document.getElementById('root');
+import { DrawContext, shapes, resize } from './Global.js';
+export const View = () => {
     const create = ({tag, ...props}) => Object.assign(document.createElement(tag), props);
+    // Contenedor Principal
     const container = create({
         tag: 'section',
         id: 'container',
         className: 'p-2 d-flex justify-content-between',
     })
     root.append(container);
+    // Opciones de Dibujo
     const shape = create({
         tag: 'select',
         id: 'shape',
-        innerHTML: Shape.names.map(opt => 
+        innerHTML: Object.keys(shapes).map(opt => 
             `<option value="${opt}">${opt}</option>`
         ).join(),
         oninput: ({target: {value}}) => DrawContext.shape = value
@@ -40,18 +38,7 @@ export class View {
         id: 'fillStyle',
         type: 'color',
         title: "color de relleno",
-        oninput: ({target: { value}}) => { if (!DrawContext.fillTransparent) DrawContext.fillStyle = value; }
-    });
-    const fillTransparent = create({
-        tag: 'input',
-        id: 'fillTransparent',
-        type: 'checkbox',
-        checked: DrawContext.fillTransparent,
-        title: "relleno transparente",
-        oninput: ({target: {checked}}) => {
-            DrawContext.fillTransparent = checked;
-            DrawContext.fillStyle = checked ? 'transparent' : DrawContext.fillStyle;
-        }
+        oninput: ({target: { value}}) => DrawContext.fillStyle = value
     });
     // Lienzos
     const canvas = create({
@@ -68,37 +55,10 @@ export class View {
         height: canvas.height,
         width: canvas.width,
     })
-    const shapeLabel = create({tag: 'label'});
-    shapeLabel.append(shape);
-    const strokeLabel = create({tag: 'label'});
-    strokeLabel.append(strokeStyle);
-    const widthLabel = create({tag: 'label'});
-    widthLabel.append(strokeWidth);
-    const fillLabel = create({tag: 'label'});
-    fillLabel.append(fillStyle);
-    const transparentLabel = create({tag: 'label'});
-    transparentLabel.append(fillTransparent);
-    container.append(shapeLabel, strokeLabel, widthLabel, fillLabel, transparentLabel);
-    container.append(canvas, shadowCanvas);
-    
-    canvas.instance = new Canvas(canvas)
-        .configure({
-            shape: DrawContext.shape,
-            lineWidth: DrawContext.lineWidth,
-            strokeStyle: DrawContext.strokeStyle,
-            fillStyle: DrawContext.fillStyle,
-        });
-    shadowCanvas.instance = new Canvas(shadowCanvas)
-        .configure({
-            shape: DrawContext.shape,
-            lineWidth: DrawContext.lineWidth,
-            strokeStyle: DrawContext.strokeStyle,
-            fillStyle: DrawContext.fillStyle,
-        });
+    container.append(shape, strokeStyle, strokeWidth, fillStyle);
+    root.append(canvas, shadowCanvas);
     
     shadowCanvas.style.position = "absolute";
-    shadowCanvas.style.top = '0';
-    shadowCanvas.style.left = '0';
-    shadowCanvas.style.zIndex = "2";
-    }
+    shadowCanvas.style.top = '2.2rem';
+    shadowCanvas.style.zIndex = "-1";
 }
