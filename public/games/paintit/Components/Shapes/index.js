@@ -4,4 +4,3 @@ export * from './Rect.js';
 export * from './Circle.js';
 export * from './Ellipse.js';
 export * from './Polygon.js';
-export * from './Star.js';
