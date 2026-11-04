@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe | DigiHub</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <main class="container">
+        <h1>Tic-Tac-Toe</h1>
+        <section class="lobby">
+            <input id="roomInput" placeholder="Código de sala" />
+            <div class="actions">
+                <button id="createBtn">Crear sala</button>
+                <button id="joinBtn">Unirse / Observar</button>
+            </div>
+            <p id="info"></p>
+        </section>
+        <section class="game hidden">
+            <div class="status">
+                <span>Sala: <strong id="roomLabel"></strong></span>
+                <span>Rol: <strong id="roleLabel"></strong></span>
+                <span>Turno: <strong id="turnLabel"></strong></span>
+            </div>
+            <div class="board" id="board"></div>
+            <p id="result"></p>
+            <button id="restartBtn" class="hidden">Reiniciar partida</button>
+        </section>
+    </main>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="./js/main.js"></script>
+</body>
+</html>

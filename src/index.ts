@@ -1,9 +1,10 @@
 import { config } from "dotenv";
-import { Database } from "./config/database.js";
-
+import { App } from "./app.js";
+import { Database } from "./config/index.js";
 config();
-const dbConn = new Database();
-
+const db = new Database();
+const app = App();
 export {
-    dbConn,
+    db,
+    app
 }
