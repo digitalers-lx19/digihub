@@ -1,9 +1,12 @@
 import type { CardData, PokerPlayerData, PokerRoomState } from "../definitions/index.js";
 import { buildDeck, Card, Deck, Player } from "./cards.js";
+
 export class PokerCard extends Card {}
+
 export class PokerDeck extends Deck<PokerCard> {
     constructor() { super(buildDeck((rank, suit) => new PokerCard(rank, suit))); }
 }
+
 export class PokerPlayer extends Player {
     lastAction = "wait";
     acted = false;
@@ -11,8 +14,10 @@ export class PokerPlayer extends Player {
         return { ...super.toJSON(), lastAction: this.lastAction, acted: this.acted };
     }
 }
+
 export type PokerPhase = "waiting" | "preflop" | "flop" | "turn" | "river" | "showdown";
 export type PokerAction = "fold" | "check" | "call" | "raise";
+
 const score5 = (cards: Card[]) => {
     const orders = cards.map((card) => card.order).sort((a, b) => b - a);
     const counts = new Map<number, number>();
@@ -37,14 +42,17 @@ const score5 = (cards: Card[]) => {
     if (pairs.length === 1) return base(1) + kicker([pairs[0][0], ...groups.filter(([, count]) => count === 1).map(([order]) => order)]);
     return kicker(orders);
 };
+
 const combinations = (cards: Card[], size: number): Card[][] => {
     if (size === 0) return [[]];
     if (cards.length < size) return [];
     const [first, ...rest] = cards;
     return [...combinations(rest, size - 1).map((combo) => [first, ...combo]), ...combinations(rest, size)];
 };
+
 export const bestPokerScore = (cards: Card[]) => Math.max(...combinations(cards, 5).map(score5));
 const hiddenCard = (): CardData => ({ id: "hidden", rank: "?", suit: "spades", value: 0, hidden: true });
+
 export class PokerGame {
     players: PokerPlayer[] = [];
     deck = new PokerDeck();
@@ -55,6 +63,7 @@ export class PokerGame {
     turn = 0;
     dealer = 0;
     winners: string[] = [];
+
     addPlayer(id: string, name: string) {
         const existing = this.players.find((player) => player.id === id);
         if (existing) return existing;
@@ -63,11 +72,13 @@ export class PokerGame {
         this.players.push(player);
         return player;
     }
+
     removePlayer(id: string) {
         this.players = this.players.filter((player) => player.id !== id);
         if (this.phase !== "waiting") this.phase = "waiting";
         this.turn = Math.min(this.turn, Math.max(0, this.players.length - 1));
     }
+
     start() {
         if (this.players.length < 2) throw new Error("Se necesitan al menos 2 jugadores");
         this.deck = new PokerDeck().shuffle();
@@ -85,6 +96,7 @@ export class PokerGame {
             player.acted = false;
         }
     }
+
     act(id: string, action: PokerAction, amount = 0) {
         const player = this.players[this.turn];
         if (!player || player.id !== id || player.folded) throw new Error("No es tu turno");
@@ -109,6 +121,7 @@ export class PokerGame {
         player.acted = true;
         this.advance();
     }
+
     private advance() {
         const active = this.players.filter((player) => !player.folded);
         if (active.length <= 1) return this.finish(active);
@@ -116,11 +129,13 @@ export class PokerGame {
         if (roundOver) return this.nextStreet();
         this.nextTurn();
     }
+
     private nextTurn() {
         do {
             this.turn = (this.turn + 1) % this.players.length;
         } while (this.players[this.turn].folded);
     }
+
     private nextStreet() {
         if (this.phase === "river") return this.showdown();
         for (const player of this.players) {
@@ -138,45 +153,46 @@ export class PokerGame {
             this.community.push(...this.deck.draw(1));
             this.phase = "river";
         }
-        this.turn = this.players.findIndex((player) => !player.folded);
+        this.turn = (this.dealer + 1) % this.players.length;
+        while (this.players[this.turn].folded) this.turn = (this.turn + 1) % this.players.length;
     }
-    private finish(active: PokerPlayer[]) {
-        this.winners = active.map((player) => player.id);
-        const share = active.length ? Math.floor(this.pot / active.length) : 0;
-        for (const player of active) player.win(share);
+
+    private finish(winners: PokerPlayer[]) {
+        const pot = this.pot;
         this.pot = 0;
+        for (const player of winners) player.win(pot / winners.length);
+        this.winners = winners.map((player) => player.id);
         this.phase = "showdown";
     }
+
     private showdown() {
         const active = this.players.filter((player) => !player.folded);
-        const scores = active.map((player) => ({
-            player,
-            score: bestPokerScore([...player.hand, ...this.community]),
-        }));
-        const best = Math.max(...scores.map(({ score }) => score));
-        const winners = scores.filter(({ score }) => score === best).map(({ player }) => player);
-        const share = Math.floor(this.pot / winners.length);
-        for (const player of winners) player.win(share);
-        this.winners = winners.map((player) => player.id);
-        this.pot = 0;
-        this.phase = "showdown";
+        let best = -1;
+        const scores = active.map((player) => {
+            const all = [...player.hand, ...this.community];
+            const score = bestPokerScore(all);
+            if (score > best) best = score;
+            return { player, score };
+        });
+        const winners = scores.filter((entry) => entry.score === best).map((entry) => entry.player);
+        this.finish(winners);
     }
+
     toJSON(viewer?: string, room = ""): PokerRoomState {
+        const reveal = this.phase === "showdown";
         return {
             room,
             phase: this.phase,
+            players: this.players.map((player) => ({
+                ...player.toJSON(),
+                hand: player.id === viewer || reveal ? player.toJSON().hand : player.hand.map(() => hiddenCard()),
+            })) as PokerPlayerData[],
             pot: this.pot,
             currentBet: this.currentBet,
             turn: this.players[this.turn]?.id ?? null,
             dealer: this.players[this.dealer]?.id ?? null,
             community: this.community.map((card) => card.toJSON()),
             winners: this.winners,
-            players: this.players.map((player) => ({
-                ...player.toJSON(),
-                lastAction: player.lastAction,
-                acted: player.acted,
-                hand: player.id === viewer ? player.toJSON().hand : player.hand.map(() => hiddenCard()),
-            })),
         };
     }
 }
