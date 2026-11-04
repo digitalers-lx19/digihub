@@ -1,7 +1,11 @@
 import { Canvas } from './Canvas.js';
 export class Surface extends Canvas {
-    get width() { return this.element.width; }
-    get height() { return this.element.height; }
+    get width() {
+        return this.element.width;
+    }
+    get height() {
+        return this.element.height;
+    }
     clear() {
         this.ctx.clearRect(0, 0, this.width, this.height);
         return this;

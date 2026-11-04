@@ -1,5 +1,4 @@
-import { line, rect, circle, ellipse } from './Shapes.js';
-import { polygon } from './Polygon.js';
+import { line, rect, circle, ellipse, polygon } from './Shapes/index.js';
 const DEFAULT_SHAPE = 'freeHand';
 const DRAWERS = new Map([
     ['freeHand', { draw: line, fill: false }],

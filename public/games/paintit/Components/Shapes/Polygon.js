@@ -1,5 +1,5 @@
-import { center, length } from './Shapes.js';
-export const polygon = ({ ctx, x1, y1, x2, y2, sides = 5 }) => {
+import { center, length } from './geometry.js';
+export const polygon = ({ ctx, coords: { x1, y1, x2, y2 }, sides = 5 }) => {
     const total = Number(sides);
     if (!Number.isInteger(total) || total < 3) return;
     const cx = center(x1, x2);

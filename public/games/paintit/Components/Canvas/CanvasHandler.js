@@ -14,14 +14,14 @@ export class CanvasHandler extends CanvasPaint {
     mousemove(event) {
         if (!this.isDrawing) return;
         const { x, y } = point(this.element, event);
-        if (this.shape !== 'freeHand') return this.preview?.configure(this).setCoords({ x1: this.x1, y1: this.y1, x2: x, y2: y }).clear().draw({ fill: false });
-        this.setCoords({ x1: this.x2, y1: this.y2, x2: x, y2: y }).draw({ fill: false });
+        if (this.shape !== 'freeHand') return this.preview?.configure(this).setCoords({ x1: this.coords.x1, y1: this.coords.y1, x2: x, y2: y }).clear().draw({ fill: false });
+        this.setCoords({ x1: this.coords.x2, y1: this.coords.y2, x2: x, y2: y }).draw({ fill: false });
     }
     mouseup(event) {
         if (!this.isDrawing) return;
         this.isDrawing = false;
         const { x, y } = point(this.element, event);
-        if (this.shape === 'freeHand') this.setCoords({ x1: this.x2, y1: this.y2, x2: x, y2: y }).draw({ fill: false });
+        if (this.shape === 'freeHand') this.setCoords({ x1: this.coords.x2, y1: this.coords.y2, x2: x, y2: y }).draw({ fill: false });
         else this.setCoords({ x2: x, y2: y }).draw();
         this.preview?.clear();
     }
