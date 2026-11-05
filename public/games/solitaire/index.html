@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solitario | DigiHub</title>
+    <link rel="stylesheet" href="/cards/styles.css">
+</head>
+<body>
+    <header>
+        <a href="/">← DigiHub</a>
+        <h1>Solitario</h1>
+        <span>Sala: <strong id="roomLabel">—</strong></span>
+    </header>
+    <section class="lobby">
+        <input id="roomInput" placeholder="Código de sala" />
+        <input id="nameInput" placeholder="Tu nombre" />
+        <button id="startBtn">Nueva partida</button>
+        <button id="drawBtn" disabled>Robar</button>
+        <span id="error" class="error"></span>
+    </section>
+    <section class="table">
+        <div class="status">
+            <span>Puntos: <strong id="scoreLabel">0</strong></span>
+            <span>Movimientos: <strong id="movesLabel">0</strong></span>
+            <span>Estado: <strong id="phaseLabel">—</strong></span>
+            <span>Mazo: <strong id="stockLabel">0</strong></span>
+        </div>
+        <div class="solitaire-top">
+            <div id="stock" class="pile pile--stock">Robar</div>
+            <div id="waste" class="pile"></div>
+            <div id="foundations" class="piles"></div>
+        </div>
+        <div id="tableau" class="tableau"></div>
+    </section>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="./js/main.js" type="module"></script>
+</body>
+</html>
