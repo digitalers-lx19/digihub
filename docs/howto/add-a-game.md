@@ -1,8 +1,10 @@
-# Cómo agregar juegos o aplicaciones al DigiHub
+# Cómo agregar un juego o aplicación al DigiHub
 
-Guía actualizada a la estructura actual del proyecto: backend en TypeScript (ESM + NodeNext), Socket.IO para la comunicación en tiempo real y frontends estáticos servidos desde `public/`.
+Guía alineada a la estructura actual del proyecto: backend en TypeScript (ESM +
+NodeNext), Socket.IO para tiempo real y frontends estáticos servidos desde `public/`.
 
-La idea central del hub es que **no hace falta tocar el menú ni registrar los handlers a mano**:
+La idea central del hub es que **no hace falta tocar el menú ni registrar los
+handlers a mano**:
 
 - El menú se arma leyendo las carpetas de `public/games/`.
 - Los handlers de Socket.IO se registran automáticamente desde `src/sockets/index.ts`.
@@ -15,9 +17,10 @@ Flujo de arranque:
 src/index.ts
   └── src/app.ts  (App)
         ├── crea el servidor HTTP + Socket.IO
+        ├── habilita express.json() para los cuerpos de las solicitudes
         ├── registra TODAS las funciones exportadas por src/sockets/index.ts
-        ├── GET /            → página principal del hub (ver nota 9)
         ├── GET /api/        → { appName, appList }
+        ├── /api/auth/*      → registro e inicio de sesión
         └── express.static('./public/')
 ```
 
@@ -29,10 +32,12 @@ Archivos clave:
 | `src/app.ts` | Crea Express, el servidor HTTP, Socket.IO y registra los handlers |
 | `src/services/games.service.ts` | Lee `public/games/` y genera el listado del menú |
 | `src/controllers/main.controller.ts` | Expone el listado (`getApps`) |
-| `src/routes/main.router.ts` | Monta el controlador en `/api/` |
+| `src/routes/main.router.ts` | Monta el controlador y el router de auth en `/api/` |
 | `src/sockets/index.ts` | Barrel de handlers: todo lo exportado acá se registra solo |
 | `src/config/websocket.ts` | Singleton de Socket.IO (`WebSocket`) |
+| `src/config/database.ts` | Conexión a MongoDB con mongoose |
 | `src/definitions/` | Tipados compartidos (incluye `definitions/games/`) |
+| `src/games/` | Lógica de dominio de los juegos de cartas |
 | `public/games/` | Un directorio por juego/aplicación |
 
 ## 2) Estructura de carpetas
@@ -41,33 +46,38 @@ Archivos clave:
 digihub/
 ├── src/
 │   ├── config/          # database, websocket
-│   ├── controllers/     # controladores HTTP
+│   ├── controllers/     # controladores HTTP (main, auth)
 │   ├── definitions/
-│   │   └── games/       # tipos por juego
+│   │   └── games/       # tipos por juego (cards, tictactoe)
+│   ├── games/           # clases de cartas, barajas, jugadores y partidas
+│   ├── models/          # esquemas de mongoose (user.model.ts)
 │   ├── routes/          # rutas HTTP
-│   ├── services/        # lógica de negocio (listado de juegos)
+│   ├── services/        # lógica de negocio (listado de juegos, auth)
 │   ├── sockets/         # handlers de Socket.IO
 │   │   ├── index.ts     # barrel de handlers
 │   │   ├── msg.handler.ts
+│   │   ├── paintit.handler.ts
+│   │   ├── poker.handler.ts
+│   │   ├── blackjack.handler.ts
+│   │   ├── solitaire.handler.ts
 │   │   └── tictactoe.handler.ts
 │   ├── utils/
 │   ├── app.ts           # configuración de Express + Socket.IO
 │   └── index.ts         # entrada
 ├── public/
-│   ├── index.html       # página principal del hub
-│   ├── app/             # assets/componentes del hub
+│   ├── cards/           # estilos y render compartido de cartas
 │   └── games/
-│       └── tictactoe/   # un directorio por juego
-│           ├── index.html
-│           ├── css/style.css
-│           └── js/main.js
+│       ├── paintit/     # un directorio por juego
+│       ├── poker/
+│       └── tictactoe/
 ├── package.json
 └── tsconfig.json
 ```
 
 ## 3) Paso 1: crear el frontend del juego
 
-Crear la carpeta `public/games/<nombre>/`. **El nombre de la carpeta es el `title` y forma parte del `path`** que muestra el menú, así que usar `kebab-case` y sin espacios.
+Crear la carpeta `public/games/<nombre>/`. **El nombre de la carpeta es el `title`
+y forma parte del `path`** que muestra el menú, así que usar `kebab-case` y sin espacios.
 
 ```text
 public/games/mi-juego/
@@ -159,15 +169,23 @@ socket.on("mi-juego:error", ({ message }) => {
 
 Convenciones importantes del frontend:
 
-- Usar rutas **relativas** para los assets (`./css/style.css`, `./js/main.js`), porque el juego se sirve en `/games/<nombre>/`.
-- El cliente de Socket.IO se carga siempre desde la ruta absoluta `/socket.io/socket.io.js` (la provee el servidor).
+- Usar rutas **relativas** para los assets (`./css/style.css`, `./js/main.js`),
+  porque el juego se sirve en `/games/<nombre>/`.
+- El cliente de Socket.IO se carga siempre desde la ruta absoluta
+  `/socket.io/socket.io.js` (la provee el servidor).
 - `io()` sin argumentos se conecta al mismo origen; no hardcodear host ni puerto.
-- Todo archivo dentro de `public/` se sirve tal cual: no hay paso de compilación configurado para el frontend.
-- `tsconfig.json` sólo incluye `src/**/*.ts`, por lo que el TypeScript que se agregue en `public/` **no se compila ni se verifica** con `npm run build`. Para juegos nuevos conviene Vanilla JS. Si se quiere TypeScript, React o Vite, hay que agregar el bundler y sus scripts a `package.json`, y compilar la salida dentro de `public/games/<nombre>/`.
+- Todo archivo dentro de `public/` se sirve tal cual: no hay paso de compilación
+  configurado para el frontend.
+- `tsconfig.json` sólo incluye `src/**/*.ts`, por lo que el TypeScript que se
+  agregue en `public/` **no se compila ni se verifica** con `npm run build`. Para
+  juegos nuevos conviene Vanilla JS. Si se quiere TypeScript, React o Vite, hay
+  que agregar el bundler y sus scripts a `package.json`, y compilar la salida
+  dentro de `public/games/<nombre>/`.
 
-## 4) Paso 2 (opcional): definir los tipos del juego
+## 4) Paso 2 (opcional): definir los tipos y la lógica del juego
 
-Si el estado de la sala es compartido o se quiere tipar el handler, crear `src/definitions/games/mi-juego.ts`:
+Si el estado de la sala es compartido o se quiere tipar el handler, crear
+`src/definitions/games/mi-juego.ts`:
 
 ```ts
 import type { Object } from "../index.js";
@@ -191,11 +209,19 @@ export * from "./tictactoe.js";
 export * from "./mi-juego.js";
 ```
 
-> Los imports internos llevan extensión `.js` (aunque el archivo sea `.ts`) por `module: NodeNext`. Usar `import type` para tipos por `verbatimModuleSyntax`.
+Si el juego tiene reglas complejas (como los juegos de cartas), la lógica de
+dominio vive en `src/games/` y se exporta desde su `index.ts`; los handlers de
+socket sólo orquestan salas y eventos. Mirá `src/games/cards.ts` para el patrón
+de clase base + subclases por juego (`Card`, `Deck`, `Player` → `PokerCard`,
+`BlackjackDeck`, `SolitaireGame`, etc.).
+
+> Los imports internos llevan extensión `.js` (aunque el archivo sea `.ts`) por
+> `module: NodeNext`. Usar `import type` para tipos por `verbatimModuleSyntax`.
 
 ## 5) Paso 3: crear el handler de Socket.IO
 
-Crear `src/sockets/mi-juego.handler.ts`. El handler recibe el `Server` de Socket.IO y el `Socket` conectado; **no** hay que importar el singleton `WebSocket`.
+Crear `src/sockets/mi-juego.handler.ts`. El handler recibe el `Server` de
+Socket.IO y el `Socket` conectado; **no** hay que importar el singleton `WebSocket`.
 
 ```ts
 import type { Server, Socket } from "socket.io";
@@ -301,7 +327,10 @@ ws.connect((socket: Socket) => {
 });
 ```
 
-> **Ojo:** se registra **toda función exportada** por `src/sockets/index.ts`. Los valores que no son funciones (por ejemplo `chatRoom`) se filtran, pero no exportes helpers como funciones desde ese barrel: se ejecutarían como handlers en cada conexión.
+> **Ojo:** se registra **toda función exportada** por `src/sockets/index.ts`.
+> Los valores que no son funciones (por ejemplo `chatRoom`) se filtran, pero no
+> exportes helpers como funciones desde ese barrel: se ejecutarían como handlers
+> en cada conexión.
 
 ### Contrato de eventos recomendado
 
@@ -312,15 +341,18 @@ ws.connect((socket: Socket) => {
 | `<juego>:join` | cliente → servidor | `{ room }` |
 | `<juego>:joined` | servidor → cliente | `{ room, role, ... }` |
 | `<juego>:move` | ambos | `{ room, ...jugada }` |
-| `<juego>:room:update` | servidor → sala | estado completo |
+| `<juego>:state` | cliente → servidor | `{ room }` (pedido de estado puntual) |
+| `<juego>:update` / `<juego>:room:update` | servidor → sala | estado completo |
 | `<juego>:restart` | cliente → servidor | `{ room }` |
 | `<juego>:error` | servidor → cliente | `{ message }` |
 
 Reglas:
 
-- Prefijar **todos** los eventos con el nombre del juego para evitar colisiones entre handlers (todos comparten el mismo `Server`).
+- Prefijar **todos** los eventos con el nombre del juego para evitar colisiones
+  entre handlers (todos comparten el mismo `Server`).
 - Validar siempre en el servidor: sala existente, cantidad de jugadores, turno y jugada.
-- El creador entra a la sala con `socket.join(room)` y el estado se difunde con `ws.to(room).emit(...)`.
+- El creador entra a la sala con `socket.join(room)` y el estado se difunde con
+  `ws.to(room).emit(...)`.
 - Permitir observadores cuando la partida ya tiene el cupo completo.
 - En `disconnecting`, quitar al jugador, notificar y borrar la sala si queda vacía.
 
@@ -342,24 +374,14 @@ export const getGames = () => {
 };
 ```
 
-Por lo tanto, con sólo crear `public/games/mi-juego/` el juego ya aparece en:
+Por lo tanto, con sólo crear `public/games/mi-juego/` el juego ya aparece en
+`GET /api/`. Sólo hay que editar código si se quiere un título distinto al nombre
+de la carpeta, un orden particular o un `path` especial: en ese caso se modifica
+`getGames()` en `src/services/games.service.ts` (o el controlador
+`src/controllers/main.controller.ts`).
 
-```http
-GET /api/
-```
-
-```json
-{
-  "appName": "DigiHub",
-  "appList": [
-    { "title": "mi-juego", "path": "/games/mi-juego/" }
-  ]
-}
-```
-
-Sólo hay que editar código si se quiere un título distinto al nombre de la carpeta, un orden particular o un `path` especial. En ese caso se modifica `getGames()` en `src/services/games.service.ts` (o el controlador `src/controllers/main.controller.ts`).
-
-> El listado refleja **directorios**, así que una aplicación sin multijugador también se agrega creando su carpeta en `public/games/` y omitiendo el handler.
+> El listado refleja **directorios**, así que una aplicación sin multijugador
+> también se agrega creando su carpeta en `public/games/` y omitiendo el handler.
 
 ## 7) Verificación
 
@@ -374,12 +396,14 @@ npm run dev
 npm run build
 ```
 
-Con el servidor levantado (el puerto sale de `.env`, por defecto `3000`):
+Con el servidor levantado (el puerto sale de `.env`):
 
 1. `GET http://localhost:<PORT>/api/` debe incluir `{ "title": "mi-juego", "path": "/games/mi-juego/" }`.
 2. `http://localhost:<PORT>/games/mi-juego/` debe cargar el frontend y sus assets.
-3. Abrir el juego en dos pestañas o navegadores: la primera crea la sala, la segunda se une como jugador y una tercera como observador.
-4. Cerrar una pestaña y verificar que el estado de la sala se actualice y que la sala se elimine al quedar vacía.
+3. Abrir el juego en dos pestañas o navegadores: la primera crea la sala, la
+   segunda se une como jugador y una tercera como observador.
+4. Cerrar una pestaña y verificar que el estado de la sala se actualice y que la
+   sala se elimine al quedar vacía.
 5. Revisar la consola del servidor y del navegador sin errores.
 
 ## 8) Checklist rápido
@@ -387,6 +411,7 @@ Con el servidor levantado (el puerto sale de `.env`, por defecto `3000`):
 - [ ] Carpeta creada en `public/games/<nombre>/` con `index.html`, `css/` y `js/`
 - [ ] Assets referenciados con rutas relativas y cliente desde `/socket.io/socket.io.js`
 - [ ] Tipos del juego en `src/definitions/games/<nombre>.ts` y exportados en su `index.ts` (opcional)
+- [ ] Lógica de dominio en `src/games/` con clases base reutilizables (opcional)
 - [ ] Handler en `src/sockets/<nombre>.handler.ts`
 - [ ] Handler exportado en `src/sockets/index.ts` (registro automático)
 - [ ] Eventos prefijados con `<nombre>:`
@@ -396,7 +421,9 @@ Con el servidor levantado (el puerto sale de `.env`, por defecto `3000`):
 
 ## 9) Notas sobre el estado actual del repositorio
 
-- `src/app.ts` referencia `mainController.getAppsPage`, pero el controlador sólo expone `getApps`. Eso hace fallar `npx tsc --noEmit`. Antes de usar esta guía como verificación, alinear ambos nombres (por ejemplo, usar `mainController.getApps` en la ruta `/`, o agregar `getAppsPage` al controlador).
-- El menú real vive en `public/games/`. Algunos comentarios de `src/tests/index.test.ts` y del historial mencionan `public/app/`; esa carpeta hoy contiene los componentes del hub (`public/app/Components/`), no los juegos.
-- `npm test` apunta a `jest`, pero Jest no está instalado y `src/tests/index.test.ts` sólo contiene comentarios. No hay suite automatizada todavía.
-- `npm run build` ejecuta únicamente `tsc`: no copia ni compila `public/`, que ya se sirve estático.
+- El listado menciona carpetas; si el menú histórico habla de `public/app/`, esa
+  carpeta contiene componentes del hub, no juegos. Los juegos viven en `public/games/`.
+- `npm test` apunta a `jest`, pero Jest no está instalado y `src/tests/index.test.ts`
+  sólo contiene comentarios. No hay suite automatizada todavía.
+- `npm run build` ejecuta únicamente `tsc`: no copia ni compila `public/`, que ya
+  se sirve estático.
