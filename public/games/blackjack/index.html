@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack | DigiHub</title>
+    <link rel="stylesheet" href="/cards/styles.css">
+</head>
+<body>
+    <header>
+        <a href="/">← DigiHub</a>
+        <h1>Blackjack</h1>
+        <span>Sala: <strong id="roomLabel">—</strong></span>
+    </header>
+    <section class="lobby">
+        <input id="roomInput" placeholder="Código de sala" />
+        <input id="nameInput" placeholder="Tu nombre" />
+        <button id="joinBtn">Entrar</button>
+        <button id="startBtn" disabled>Repartir</button>
+        <span id="error" class="error"></span>
+    </section>
+    <section class="table">
+        <div class="status">
+            <span>Fase: <strong id="phaseLabel">—</strong></span>
+            <span>Turno: <strong id="turnLabel">—</strong></span>
+            <span id="message"></span>
+        </div>
+        <h2>Dealer · <span id="dealerScore">0</span></h2>
+        <div id="dealer" class="hand"></div>
+        <h2>Jugadores</h2>
+        <div id="players"></div>
+        <div class="lobby">
+            <button id="hitBtn" disabled>Pedir carta</button>
+            <button id="standBtn" disabled>Quedarse</button>
+        </div>
+    </section>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="./js/main.js" type="module"></script>
+</body>
+</html>
