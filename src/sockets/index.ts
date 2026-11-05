@@ -1,2 +1,6 @@
 export * from "./msg.handler.js"
 export * from "./tictactoe.handler.js"
+export * from "./paintit.handler.js"
+export * from "./poker.handler.js"
+export * from "./blackjack.handler.js"
+export * from "./solitaire.handler.js"
