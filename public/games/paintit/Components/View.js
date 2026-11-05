@@ -1,104 +1,25 @@
-import { DrawContext, resize } from './Global.js';
-import { Canvas } from './Canvas/Canvas.js';
-import { Shape } from './Shape.js';
-export class View {
-    render() {
-    const root = document.getElementById('root');
-    const create = ({tag, ...props}) => Object.assign(document.createElement(tag), props);
-    const container = create({
-        tag: 'section',
-        id: 'container',
-        className: 'p-2 d-flex justify-content-between',
-    })
-    root.append(container);
-    const shape = create({
-        tag: 'select',
-        id: 'shape',
-        innerHTML: Shape.names.map(opt => 
-            `<option value="${opt}">${opt}</option>`
-        ).join(),
-        oninput: ({target: {value}}) => DrawContext.shape = value
-    });
-    const strokeWidth = create({
-        tag: 'input', 
-        id: 'strokeWidth',
-        type: 'range', 
-        value:1, 
-        min: 0, 
-        max: 10,
-        oninput: ({target: { value}}) => DrawContext.strokeWidth = value
-    });
-    const strokeStyle = create({
-        tag: 'input', 
-        id: 'strokeStyle',
-        type: 'color',
-        title: "color de linea",
-        oninput: ({target: { value}}) => DrawContext.strokeStyle = value
-    });
-    const fillStyle = create({
-        tag: 'input', 
-        id: 'fillStyle',
-        type: 'color',
-        title: "color de relleno",
-        oninput: ({target: { value}}) => { if (!DrawContext.fillTransparent) DrawContext.fillStyle = value; }
-    });
-    const fillTransparent = create({
-        tag: 'input',
-        id: 'fillTransparent',
-        type: 'checkbox',
-        checked: DrawContext.fillTransparent,
-        title: "relleno transparente",
-        oninput: ({target: {checked}}) => {
-            DrawContext.fillTransparent = checked;
-            DrawContext.fillStyle = checked ? 'transparent' : DrawContext.fillStyle;
-        }
-    });
-    // Lienzos
-    const canvas = create({
-        tag: 'canvas',
-        id: 'canvas',
-        className: 'border',
-        height: resize().height,
-        width: resize().width,
-    })
-    const shadowCanvas = create({
-        tag: 'canvas',
-        id: 'shadow',
-        className: 'border',
-        height: canvas.height,
-        width: canvas.width,
-    })
-    const shapeLabel = create({tag: 'label'});
-    shapeLabel.append(shape);
-    const strokeLabel = create({tag: 'label'});
-    strokeLabel.append(strokeStyle);
-    const widthLabel = create({tag: 'label'});
-    widthLabel.append(strokeWidth);
-    const fillLabel = create({tag: 'label'});
-    fillLabel.append(fillStyle);
-    const transparentLabel = create({tag: 'label'});
-    transparentLabel.append(fillTransparent);
-    container.append(shapeLabel, strokeLabel, widthLabel, fillLabel, transparentLabel);
-    container.append(canvas, shadowCanvas);
-    
-    canvas.instance = new Canvas(canvas)
-        .configure({
-            shape: DrawContext.shape,
-            lineWidth: DrawContext.lineWidth,
-            strokeStyle: DrawContext.strokeStyle,
-            fillStyle: DrawContext.fillStyle,
-        });
-    shadowCanvas.instance = new Canvas(shadowCanvas)
-        .configure({
-            shape: DrawContext.shape,
-            lineWidth: DrawContext.lineWidth,
-            strokeStyle: DrawContext.strokeStyle,
-            fillStyle: DrawContext.fillStyle,
-        });
-    
-    shadowCanvas.style.position = "absolute";
-    shadowCanvas.style.top = '0';
-    shadowCanvas.style.left = '0';
-    shadowCanvas.style.zIndex = "2";
+import { buildControls } from './Controls.js';
+const buildLabel = (text, control) => {
+    const label = document.createElement('label');
+    label.append(text, control);
+    return label;
+};
+export const View = (root = document.getElementById('root') ?? document.body) => {
+    const toolbar = document.createElement('section');
+    toolbar.id = 'container';
+    const built = buildControls();
+    const controls = new Map();
+    for (const { key, label, control } of built) {
+        toolbar.append(buildLabel(label, control));
+        controls.set(key, control);
     }
-}
+    const stage = document.createElement('div');
+    stage.id = 'stage';
+    const preview = document.createElement('canvas');
+    preview.id = 'shadow';
+    const canvas = document.createElement('canvas');
+    canvas.id = 'canvas';
+    stage.append(preview, canvas);
+    root.append(toolbar, stage);
+    return { canvas, preview, controls };
+};
