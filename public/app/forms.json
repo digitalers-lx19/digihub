@@ -1,0 +1,53 @@
+[
+	{
+		"id": "login",
+		"action": "/api/auth/login",
+		"children": "<a href='#signup'>¿No tienes cuenta? Regístrate aquí</a>",
+		"fields": [
+			{
+				"label": "Ingrese su Usuario o Correo:",
+				"id": "email",
+				"required": true
+			},
+			{
+				"label": "Escriba su Contraseña:",
+				"type": "password",
+				"id": "password",
+				"required": true,
+				"autocomplete": "current-password"
+			},
+			{
+				"type": "submit",
+				"id": "login-button",
+				"label": "Iniciar Sesion"
+			}
+		]
+	},
+	{
+		"id": "signup",
+		"action": "/api/auth/signup",
+		"children": "<a href='#login'>¿Ya tienes cuenta? Inicia sesión aquí</a>",
+		"fields": [
+			{
+				"label": "Escriba un Nombre de Usuario:",
+				"id": "name",
+				"required": true
+			},
+			{ "label": "Ingrese su Correo:", "id": "email", "required": true },
+			{
+				"label": "Escriba una Contraseña:",
+				"type": "password",
+				"id": "password",
+				"required": true,
+				"autocomplete": "new-password"
+			},
+			{
+				"label": "Repita la Contraseña:",
+				"type": "password",
+				"id": "confirm-password",
+				"required": true
+			},
+			{ "type": "submit", "id": "signup-button", "label": "Registrarse" }
+		]
+	}
+]
