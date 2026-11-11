@@ -4,6 +4,7 @@ node_modules/
 # Entorno
 .vscode/
 .env
+*-credentials.env
 # Registro de Actividad
 logs/
 *.log*
