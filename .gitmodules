@@ -4,3 +4,4 @@
 [submodule "public/games/counterstrike-local"]
 	path = public/games/counterstrike-local
 	url = https://github.com/TecTroncoso/CounterStrikeLocal.git
+	branch = digihub
