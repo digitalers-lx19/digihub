@@ -1,3 +1,7 @@
 [submodule "public/games/chess"]
 	path = public/games/chess
 	url = https://github.com/c215714n/ch355_m45732/
+[submodule "public/games/counterstrike-local"]
+	path = public/games/counterstrike-local
+	url = https://github.com/TecTroncoso/CounterStrikeLocal.git
+	branch = digihub
