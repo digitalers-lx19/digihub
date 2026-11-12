@@ -1,5 +1,7 @@
 import forms from '../forms.json' with { type: 'json' };
 export function Auth() {
+    const root = document.getElementById('root');
+    if (!root) return;
     const renderForm = ({id, className='form hidden modal-content', action = "/", method = "POST", fields = [], children = null}) => `
         <form id="${id}" class="${className}" action="${action}" method="${method}">
             ${fields.map(field => renderFormControl(field)).join('')}

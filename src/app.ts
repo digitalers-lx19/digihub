@@ -13,6 +13,8 @@ export function App () {
     ws.connect((socket: Socket) => {
         socketHandlers.map(handler => handler((WebSocket as any).ws, socket))
     }) 
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
     app.use('/api/', mainRouter);
     app.use(express.static('./public/'));
     app.use(cors())
