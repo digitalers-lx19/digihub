@@ -22,7 +22,8 @@ export class Canvas {
         return this;
     }
     setCoords(coords = {}) {
-        for (const key of COORD_KEYS) if (coords[key] !== undefined) this.coords[key] = coords[key];
+        for (const key of COORD_KEYS) if (coords[key] !== undefined) 
+            this.coords[key] = coords[key];
         return this;
     }
 }
